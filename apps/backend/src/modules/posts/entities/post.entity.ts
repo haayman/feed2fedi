@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property, ManyToOne, Ref } from "@mikro-orm/core";
 import { v4 as uuid } from "uuid";
-import { Account } from "../../accounts/entities/account.entity";
+import { Account } from '../../accounts/entities/account.entity.js';
 
 @Entity({ tableName: "posts" })
 export class Post {
@@ -21,6 +21,9 @@ export class Post {
 
   @Property({ type: "string", nullable: true })
   url?: string;
+
+  @Property({ type: "string", nullable: true })
+  imageUrl?: string;
 
   @Property({ type: "string", nullable: true })
   authorName?: string;

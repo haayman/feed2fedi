@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import Parser from "rss-parser";
 import { EntityManager } from "@mikro-orm/core";
-import { Feed } from './entities/feed.entity.js';
-import { Post } from '../posts/entities/post.entity.js';
+import { Feed } from "./entities/feed.entity.js";
+import { Post } from "../posts/entities/post.entity.js";
 import { v4 as uuid } from "uuid";
 
 export interface RSSItem {
@@ -103,7 +103,9 @@ export class RssCrawlerService {
 
         this.em.persist(post);
         createdPosts.push(post);
-        this.logger.debug(`Created post: ${post.id} from feed item: ${item.guid}`);
+        this.logger.debug(
+          `Created post: ${post.id} from feed item: ${item.guid}`,
+        );
       } catch (error) {
         this.logger.error(
           `Error creating post from feed item: ${error instanceof Error ? error.message : String(error)}`,
@@ -139,10 +141,7 @@ export class RssCrawlerService {
     }
   }
 
-  async updateFeedLastFetch(
-    feedId: string,
-    error?: string,
-  ): Promise<void> {
+  async updateFeedLastFetch(feedId: string, error?: string): Promise<void> {
     const feed = await this.em.findOne(Feed, { id: feedId });
     if (feed) {
       feed.lastFetchedAt = new Date();

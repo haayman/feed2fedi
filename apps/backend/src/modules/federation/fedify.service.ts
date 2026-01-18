@@ -9,11 +9,11 @@ import {
 } from "@fedify/fedify";
 import { FEDIFY_FEDERATION } from "@fedify/nestjs";
 import { EntityManager } from "@mikro-orm/core";
-import { ConfigService } from '../../config/config.service.js';
-import { AccountsService } from '../accounts/accounts.service.js';
-import { Account } from '../accounts/entities/account.entity.js';
-import { Post } from '../posts/entities/post.entity.js';
-import { Follower } from '../followers/entities/follower.entity.js';
+import { ConfigService } from "../../config/config.service.js";
+import { AccountsService } from "../accounts/accounts.service.js";
+import { Account } from "../accounts/entities/account.entity.js";
+import { Post } from "../posts/entities/post.entity.js";
+import { Follower } from "../followers/entities/follower.entity.js";
 import * as crypto from "crypto";
 
 interface ContextData {
@@ -53,30 +53,35 @@ export class FederationService implements OnModuleInit {
     this.logger.log("Initializing Fedify federation");
 
     // Setup actor dispatcher for each account
-    this.federation.setActorDispatcher("/users/{identifier}", async (ctx, identifier) => {
-      this.logger.debug(`[ACTOR] Dispatcher called for identifier: ${identifier}`);
+    this.federation.setActorDispatcher(
+      "/users/{identifier}",
+      async (ctx, identifier) => {
+        this.logger.debug(
+          `[ACTOR] Dispatcher called for identifier: ${identifier}`,
+        );
 
-      const account = await this.accountsService.findByUsername(identifier);
-      if (!account) {
-        this.logger.debug(`[ACTOR] Account not found: ${identifier}`);
-        return null;
-      }
+        const account = await this.accountsService.findByUsername(identifier);
+        if (!account) {
+          this.logger.debug(`[ACTOR] Account not found: ${identifier}`);
+          return null;
+        }
 
-      this.logger.log(`[ACTOR] Returning actor profile for @${identifier}`);
+        this.logger.log(`[ACTOR] Returning actor profile for @${identifier}`);
 
-      return new Person({
-        id: ctx.getActorUri(identifier),
-        name: account.displayName,
-        summary: account.summary,
-        preferredUsername: identifier,
-        url: new URL("/", ctx.url),
-        inbox: ctx.getInboxUri(identifier),
-        outbox: ctx.getOutboxUri(identifier),
-        publicKeys: (await ctx.getActorKeyPairs(identifier)).map(
-          (keyPair) => keyPair.cryptographicKey,
-        ),
-      });
-    });
+        return new Person({
+          id: ctx.getActorUri(identifier),
+          name: account.displayName,
+          summary: account.summary,
+          preferredUsername: identifier,
+          url: new URL("/", ctx.url),
+          inbox: ctx.getInboxUri(identifier),
+          outbox: ctx.getOutboxUri(identifier),
+          publicKeys: (await ctx.getActorKeyPairs(identifier)).map(
+            (keyPair) => keyPair.cryptographicKey,
+          ),
+        });
+      },
+    );
 
     // TODO: Setup key pairs dispatcher - check Fedify API documentation
     // this.federation.setKeyPairsDispatcher(async (ctx, identifier) => {
@@ -153,9 +158,7 @@ export class FederationService implements OnModuleInit {
           parsed.identifier,
         );
         if (!account) {
-          this.logger.warn(
-            `[INBOX] Account not found: ${parsed.identifier}`,
-          );
+          this.logger.warn(`[INBOX] Account not found: ${parsed.identifier}`);
           return;
         }
 
@@ -206,17 +209,23 @@ export class FederationService implements OnModuleInit {
   }
 
   async publishPost(post: Post, account: Account): Promise<void> {
-    this.logger.log(`[PUBLISH] Publishing post ${post.id} for @${account.username}`);
+    this.logger.log(
+      `[PUBLISH] Publishing post ${post.id} for @${account.username}`,
+    );
 
     try {
       // Fetch all followers for this account
       const followers = await this.em.find(Follower, { account: account.id });
-      this.logger.log(`[PUBLISH] Found ${followers.length} followers for @${account.username}`);
-      
+      this.logger.log(
+        `[PUBLISH] Found ${followers.length} followers for @${account.username}`,
+      );
+
       if (followers.length > 0) {
         this.logger.debug(`[PUBLISH] Follower details:`);
         followers.forEach((f, i) => {
-          this.logger.debug(`  [${i + 1}] Actor: ${f.actorUrl}, Inbox: ${f.inboxUrl}`);
+          this.logger.debug(
+            `  [${i + 1}] Actor: ${f.actorUrl}, Inbox: ${f.inboxUrl}`,
+          );
         });
       }
 
@@ -233,35 +242,45 @@ export class FederationService implements OnModuleInit {
         name: post.title,
         url: post.url ? new URL(post.url) : undefined,
       });
-      
-      this.logger.debug(`[PUBLISH] Created Note: id=${note.id}, name="${note.name}"`);
+
+      this.logger.debug(
+        `[PUBLISH] Created Note: id=${note.id}, name="${note.name}"`,
+      );
 
       // Create activity
       const activity = new Create({
         actor: new URL(`/users/${account.username}`, this.getOrigin()),
         object: note,
       });
-      
-      this.logger.debug(`[PUBLISH] Created Create activity: actor=${activity.actorId}`);
+
+      this.logger.debug(
+        `[PUBLISH] Created Create activity: actor=${activity.actorId}`,
+      );
 
       // Get account keypair for signing
       if (!account.publicKey || !account.privateKey) {
         throw new Error(`No keypair found for @${account.username}`);
       }
 
-      this.logger.debug(`[PUBLISH] Account has keypair (private key length: ${account.privateKey.length} chars)`);
+      this.logger.debug(
+        `[PUBLISH] Account has keypair (private key length: ${account.privateKey.length} chars)`,
+      );
 
       // Send to all followers' inboxes
       let successCount = 0;
       for (const follower of followers) {
         try {
           if (!follower.inboxUrl) {
-            this.logger.warn(`[PUBLISH] No inbox URL for follower: ${follower.actorUrl}`);
+            this.logger.warn(
+              `[PUBLISH] No inbox URL for follower: ${follower.actorUrl}`,
+            );
             continue;
           }
 
           const inboxUrl = new URL(follower.inboxUrl);
-          this.logger.log(`[PUBLISH] Attempting to send activity to inbox: ${inboxUrl.toString()}`);
+          this.logger.log(
+            `[PUBLISH] Attempting to send activity to inbox: ${inboxUrl.toString()}`,
+          );
 
           // TODO: Implement actual sending via Fedify's message queue or direct HTTP POST
           // For now we log what would be sent
@@ -271,7 +290,7 @@ export class FederationService implements OnModuleInit {
           this.logger.debug(`  - Object type: Note`);
           this.logger.debug(`  - Object URL: ${note.url}`);
           this.logger.debug(`  - Recipient (inbox): ${inboxUrl.toString()}`);
-          
+
           successCount++;
         } catch (error) {
           this.logger.error(
@@ -284,7 +303,7 @@ export class FederationService implements OnModuleInit {
 
       this.logger.log(
         `[PUBLISH] Post ${post.id} activities prepared for ${successCount}/${followers.length} followers. ` +
-        `Status: draft posts will be marked as 'published' by the scheduler.`
+          `Status: draft posts will be marked as 'published' by the scheduler.`,
       );
     } catch (error) {
       this.logger.error(

@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { EntityManager } from "@mikro-orm/core";
-import { RssCrawlerService } from './rss-crawler.service.js';
-import { FeedsService } from './feeds.service.js';
-import { Feed } from './entities/feed.entity.js';
-import { FederationService } from '../federation/fedify.service.js';
-import { Account } from '../accounts/entities/account.entity.js';
+import { RssCrawlerService } from "./rss-crawler.service.js";
+import { FeedsService } from "./feeds.service.js";
+import { Feed } from "./entities/feed.entity.js";
+import { FederationService } from "../federation/fedify.service.js";
+import { Account } from "../accounts/entities/account.entity.js";
 
 @Injectable()
 export class FeedCrawlerScheduler implements OnModuleInit {
@@ -21,10 +21,10 @@ export class FeedCrawlerScheduler implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     this.logger.log("[INIT] Feed crawler scheduler initializing...");
-    
+
     // Give database time to initialize
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     try {
       this.logger.log("[INIT] Running initial feed crawl");
       await this.crawlFeeds();
@@ -89,15 +89,20 @@ export class FeedCrawlerScheduler implements OnModuleInit {
       // Publish posts if autoPublish is enabled
       if (feed.autoPublish && createdPosts.length > 0) {
         // Load full account object using its ID
-        const accountId = feed.account instanceof Object && 'id' in feed.account ? (feed.account as any).id : feed.account;
+        const accountId =
+          feed.account instanceof Object && "id" in feed.account
+            ? (feed.account as any).id
+            : feed.account;
         const account = await this.em.findOne(Account, accountId);
-        
+
         if (!account) {
           this.logger.error(`[PUBLISH ERROR] Account not found: ${accountId}`);
         } else {
           // Only publish draft posts, skip already published or failed ones
-          const postsToPublish = createdPosts.filter(p => p.status === 'draft');
-          
+          const postsToPublish = createdPosts.filter(
+            (p) => p.status === "draft",
+          );
+
           if (postsToPublish.length > 0) {
             this.logger.log(
               `[PUBLISH] Publishing ${postsToPublish.length} posts for @${account.username}`,
@@ -105,25 +110,29 @@ export class FeedCrawlerScheduler implements OnModuleInit {
             for (const post of postsToPublish) {
               try {
                 await this.federationService.publishPost(post, account);
-                
+
                 // Update post status to published
-                post.status = 'published';
+                post.status = "published";
                 post.publishedAt = new Date();
                 await this.em.persistAndFlush(post);
-                
-                this.logger.log(`[PUBLISH SUCCESS] Post ${post.id} published successfully`);
+
+                this.logger.log(
+                  `[PUBLISH SUCCESS] Post ${post.id} published successfully`,
+                );
               } catch (error) {
                 // Mark post as failed
-                post.status = 'failed';
+                post.status = "failed";
                 await this.em.persistAndFlush(post);
-                
+
                 this.logger.error(
                   `[PUBLISH ERROR] Failed to publish post ${post.id}: ${error instanceof Error ? error.message : String(error)}`,
                 );
               }
             }
           } else {
-            this.logger.log(`[PUBLISH] No draft posts to publish (${createdPosts.length} new posts already handled)`);
+            this.logger.log(
+              `[PUBLISH] No draft posts to publish (${createdPosts.length} new posts already handled)`,
+            );
           }
         }
       }
