@@ -141,6 +141,26 @@ export class RssCrawlerService {
     }
   }
 
+  async getAccountFeeds(accountName: string): Promise<Feed[]> {
+    try {
+      const feeds = await this.em.find(Feed, {
+        isActive: true,
+        account: {
+          username: accountName,
+        },
+      });
+      this.logger.debug(
+        `[DB] Found ${feeds.length} active feeds for @${accountName}`,
+      );
+      return feeds;
+    } catch (error) {
+      this.logger.error(
+        `[DB ERROR] Error fetching feeds for @${accountName}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
+  }
+
   async updateFeedLastFetch(feedId: string, error?: string): Promise<void> {
     const feed = await this.em.findOne(Feed, { id: feedId });
     if (feed) {

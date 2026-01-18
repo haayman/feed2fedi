@@ -3,12 +3,16 @@
     "username": "admin",
     "password": "changeme123"
   },
+  "crawler": {
+    "defaultCron": "*/15 * * * *"
+  },
   "accounts": [
     {
       "name": "immich",
       "displayName": "Immich",
       "summary": "Latest updates, announcements, and stories from the Immich team.",
-      "feedUrl": "https://immich.app/blog/feed.xml"
+      "feedUrl": "https://immich.app/blog/feed.xml",
+      "crawlerCron": "0 * * * *"
     },
     {
       "name": "jsnover",
@@ -36,12 +40,14 @@
       "name": "TheOnion",
       "displayName": "The Onion",
       "summary": "America's Finest News Source",
-      "feedUrl": "https://theonion.com/feed/"
+      "feedUrl": "https://theonion.com/feed/",
+      "crawlerCron": "0 */4 * * *"
     },
     {
       "name": "netkwesties",
       "displayName": "Net kwesties",
-      "feedUrl": "https://www.netkwesties.nl/rss/feed.xml"
+      "feedUrl": "https://www.netkwesties.nl/rss/feed.xml",
+      "crawlerCron": "0 9 * * *"
     },
     {
       "name": "OfficialAndroidBlog",

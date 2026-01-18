@@ -8,16 +8,22 @@ interface AdminConfig {
   password: string;
 }
 
+interface CrawlerConfig {
+  defaultCron?: string;
+}
+
 interface AccountConfig {
   name: string;
   displayName: string;
   summary?: string;
   feedUrl: string;
+  crawlerCron?: string;
 }
 
 interface AppConfig {
   domain: string;
   admin: AdminConfig;
+  crawler?: CrawlerConfig;
   accounts: AccountConfig[];
 }
 
@@ -26,6 +32,7 @@ export class ConfigService {
   private config: AppConfig = {
     domain: process.env.FEDIVERSE_DOMAIN || "localhost:3002",
     admin: { username: "admin", password: "changeme123" },
+    crawler: { defaultCron: "*/15 * * * *" },
     accounts: [],
   };
   private logger = new Logger(ConfigService.name);
@@ -144,6 +151,15 @@ export class ConfigService {
 
   getAccounts(): AccountConfig[] {
     return this.config.accounts;
+  }
+
+  getCrawlerCron(): string {
+    return this.config.crawler?.defaultCron || "*/15 * * * *";
+  }
+
+  getAccountCrawlerCron(accountName: string): string {
+    const account = this.config.accounts.find(a => a.name === accountName);
+    return account?.crawlerCron || this.getCrawlerCron();
   }
 
   getConfig(): AppConfig {

@@ -1,22 +1,24 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { CronJob } from "cron";
 import { EntityManager } from "@mikro-orm/core";
 import { RssCrawlerService } from "./rss-crawler.service.js";
 import { FeedsService } from "./feeds.service.js";
 import { Feed } from "./entities/feed.entity.js";
 import { FederationService } from "../federation/fedify.service.js";
 import { Account } from "../accounts/entities/account.entity.js";
+import { ConfigService } from "../../config/config.service.js";
 
 @Injectable()
 export class FeedCrawlerScheduler implements OnModuleInit {
   private readonly logger = new Logger(FeedCrawlerScheduler.name);
-  private feedTimers = new Map<string, NodeJS.Timeout>();
+  private cronJobs = new Map<string, CronJob>();
 
   constructor(
     private readonly rssCrawlerService: RssCrawlerService,
     private readonly feedsService: FeedsService,
     private readonly em: EntityManager,
     private readonly federationService: FederationService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -35,9 +37,80 @@ export class FeedCrawlerScheduler implements OnModuleInit {
         error instanceof Error ? error.stack : "",
       );
     }
+
+    // Start cron-based crawling per account
+    await this.startCronJobs();
   }
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  /**
+   * Start cron jobs for each account based on their crawler cron string
+   */
+  private async startCronJobs(): Promise<void> {
+    const accounts = this.configService.getAccounts();
+    this.logger.log(`[INIT] Setting up ${accounts.length} crawler cron jobs`);
+
+    for (const account of accounts) {
+      const cronString = this.configService.getAccountCrawlerCron(account.name);
+      const jobName = `crawlFeed_${account.name}`;
+
+      try {
+        const job = new CronJob(cronString, async () => {
+          try {
+            this.logger.log(`[CRON] Crawling feed for account @${account.name}`);
+            await this.crawlAccountFeeds(account.name);
+          } catch (error) {
+            this.logger.error(
+              `[CRON ERROR] Error crawling account @${account.name}: ${error instanceof Error ? error.message : String(error)}`,
+              error instanceof Error ? error.stack : "",
+            );
+          }
+        });
+
+        this.cronJobs.set(jobName, job);
+        job.start();
+
+        this.logger.log(
+          `[CRON] Added cron job for @${account.name} with schedule: "${cronString}"`,
+        );
+      } catch (error) {
+        this.logger.error(
+          `[CRON ERROR] Failed to add cron job for account @${account.name}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
+
+    this.logger.log(`[INIT] Cron jobs started for all accounts`);
+  }
+
+  /**
+   * Crawl all feeds for a specific account
+   */
+  private async crawlAccountFeeds(accountName: string): Promise<void> {
+    try {
+      const feeds = await this.rssCrawlerService.getAccountFeeds(accountName);
+      
+      if (feeds.length === 0) {
+        this.logger.debug(`[CRAWL] No feeds found for @${accountName}`);
+        return;
+      }
+
+      this.logger.log(
+        `[CRAWL] Processing ${feeds.length} feeds for @${accountName}`,
+      );
+
+      for (const feed of feeds) {
+        await this.processFeed(feed);
+      }
+
+      this.logger.log(`[CRAWL] Completed crawling feeds for @${accountName}`);
+    } catch (error) {
+      this.logger.error(
+        `[CRAWL ERROR] Error crawling feeds for @${accountName}: ${error instanceof Error ? error.message : String(error)}`,
+        error instanceof Error ? error.stack : "",
+      );
+    }
+  }
+
   async crawlFeeds(): Promise<void> {
     try {
       this.logger.log("[CRAWL START] Starting feed crawl job");
