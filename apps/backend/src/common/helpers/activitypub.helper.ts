@@ -5,7 +5,7 @@ import {
   Collection,
   CollectionPage,
   Webfinger,
-} from "../types/activitypub.types";
+} from '../types/activitypub.types.js';
 
 export class ActivityPubHelper {
   /**

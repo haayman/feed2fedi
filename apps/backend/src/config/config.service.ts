@@ -30,6 +30,8 @@ export class ConfigService {
   private logger = new Logger(ConfigService.name);
 
   constructor() {
+    // Debug: log env vars
+    console.log("[CONFIG] process.env.FEDIVERSE_DOMAIN =", process.env.FEDIVERSE_DOMAIN);
     this.loadConfig();
   }
 
@@ -57,6 +59,14 @@ export class ConfigService {
         error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to load config: ${errorMessage}`);
       throw error;
+    }
+
+    // Allow override via environment variable
+    if (process.env.FEDIVERSE_DOMAIN) {
+      this.config.domain = process.env.FEDIVERSE_DOMAIN;
+      this.logger.log(
+        `✅ Domain overridden from FEDIVERSE_DOMAIN env var: ${this.config.domain}`,
+      );
     }
   }
 

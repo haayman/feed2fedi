@@ -6,16 +6,32 @@
   },
   "accounts": [
     {
-      "name": "techNews",
-      "displayName": "Tech News",
-      "summary": "Latest technology news from various sources",
-      "feedUrl": "https://news.ycombinator.com/rss"
+      "name": "immich",
+      "displayName": "Immich",
+      "summary": "Latest updates, announcements, and stories from the Immich team.",
+      "feedUrl": "https://immich.app/blog/feed.xml"
     },
     {
-      "name": "cryptoNews",
-      "displayName": "Crypto News",
+      "name": "jsnover",
+      "displayName": "Jeffrey Snover blog",
       "summary": "Cryptocurrency and blockchain news",
-      "feedUrl": "https://feeds.bloomberg.com/markets/news.rss"
+      "feedUrl": "https://www.jsnover.com/blog/feed/"
+    },
+    {
+      "name": "fb_apeldoorn",
+      "displayName": "Fietsersbond Apeldoorn",
+      "feedUrl": "https://apeldoorn.fietsersbond.nl/feed/"
+    },
+    {
+      "name": "RubenOppenheimer",
+      "displayName": "Ruben Oppenheimer",
+      "feedUrl": "https://www.nrc.nl/index/opinie/ruben-l-oppenheimer/rss/"
+    },
+    {
+      "name": "rivierverhalen",
+      "displayName": "Rivierverhalen",
+      "summary": "Verhalen over de IJssel en andere grote rivieren",
+      "feedUrl": "https://www.rivierverhalen.nl/feed/"
     }
   ]
 }

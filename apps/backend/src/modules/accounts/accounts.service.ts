@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { EntityManager } from "@mikro-orm/core";
-import { Account } from "./entities/account.entity";
+import { Account } from './entities/account.entity.js';
 import { v4 as uuid } from "uuid";
 
 interface CreateAccountData {

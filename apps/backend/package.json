@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "@feed2fedi/backend",
   "version": "1.0.0",
   "description": "NestJS backend for Fediverse ActivityPub server with RSS automation",
@@ -16,6 +17,9 @@
     "lint": "eslint \"{src,test}/**/*.ts\" --fix"
   },
   "dependencies": {
+    "@fedify/fedify": "^1.10.0",
+    "@fedify/nestjs": "^1.10.0",
+    "@fedify/redis": "^1.10.0",
     "@mikro-orm/core": "^6.6.4",
     "@mikro-orm/nestjs": "^6.1.1",
     "@mikro-orm/sqlite": "^6.6.4",
@@ -33,6 +37,8 @@
     "better-sqlite3": "^12.6.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "dotenv": "^17.2.3",
+    "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -40,7 +46,8 @@
     "rss-parser": "^3.13.0",
     "rxjs": "^7.8.2",
     "uuid": "^13.0.0",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "x-forwarded-fetch": "^0.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",

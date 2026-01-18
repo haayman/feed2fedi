@@ -5,7 +5,7 @@ import {
   Collection,
   OneToMany,
 } from "@mikro-orm/core";
-import { Post } from "../../posts/entities/post.entity";
+import { Post } from '../../posts/entities/post.entity.js';
 
 @Entity({ tableName: "accounts" })
 export class Account {
