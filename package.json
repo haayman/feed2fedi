@@ -1,0 +1,29 @@
+{
+  "name": "feed2fedi",
+  "version": "1.0.0",
+  "description": "Self-hosted Fediverse ActivityPub server with RSS feed automation",
+  "private": true,
+  "packageManager": "pnpm@10.6.5",
+  "pnpm": {
+    "workspaces": [
+      "apps/*"
+    ]
+  },
+  "scripts": {
+    "dev": "pnpm -r run start:dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm -r run start",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint"
+  },
+  "keywords": [
+    "fediverse",
+    "activitypub",
+    "rss",
+    "nestjs",
+    "nuxt",
+    "self-hosted"
+  ],
+  "author": "",
+  "license": "ISC"
+}

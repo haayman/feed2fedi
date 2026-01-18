@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: feed2fedi-db
+    environment:
+      POSTGRES_USER: feed2fedi
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: feed2fedi
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - feed2fedi-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U feed2fedi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: feed2fedi-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: feed2fedi
+      DB_PASSWORD: password
+      DB_NAME: feed2fedi
+      JWT_SECRET: your-secret-key-change-in-production
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend/src:/app/src
+    networks:
+      - feed2fedi-network
+    command: npm run start:dev
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: feed2fedi-frontend
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./apps/frontend:/app
+    networks:
+      - feed2fedi-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  feed2fedi-network:
+    driver: bridge

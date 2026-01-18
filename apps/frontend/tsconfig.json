@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["nuxt", "node"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [".nuxt", ".nuxt/nuxt.d.ts", "**/*.ts", "**/*.tsx", "**/*.vue"],
+  "exclude": ["node_modules", "dist", ".nuxt"]
+}

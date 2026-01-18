@@ -1,0 +1,21 @@
+{
+  "domain": "localhost:3002",
+  "admin": {
+    "username": "admin",
+    "password": "changeme123"
+  },
+  "accounts": [
+    {
+      "name": "techNews",
+      "displayName": "Tech News",
+      "summary": "Latest technology news from various sources",
+      "feedUrl": "https://news.ycombinator.com/rss"
+    },
+    {
+      "name": "cryptoNews",
+      "displayName": "Crypto News",
+      "summary": "Cryptocurrency and blockchain news",
+      "feedUrl": "https://feeds.bloomberg.com/markets/news.rss"
+    }
+  ]
+}
