@@ -2,7 +2,7 @@ import { Module, OnModuleInit, Global, Inject, Logger } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { MikroORM } from "@mikro-orm/core";
-import { SqliteDriver } from "@mikro-orm/sqlite";
+import { BetterSqliteDriver } from "@mikro-orm/better-sqlite";
 import { ScheduleModule } from "@nestjs/schedule";
 import { AccountsModule } from "./modules/accounts/accounts.module.js";
 import { PostsModule } from "./modules/posts/posts.module.js";
@@ -32,17 +32,15 @@ import * as crypto from "crypto";
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        driver: SqliteDriver,
+        driver: BetterSqliteDriver,
         dbName: configService.get("DB_NAME", "./data/feed2fedi.db"),
         entities: ["dist/**/*.entity.js"],
         entitiesTs: ["src/**/*.entity.ts"],
         debug: false,
         allowGlobalContext: true,
+        synchronize: true,
         migrations: {
           disableForeignKeys: false,
-        },
-        knex: {
-          client: "better-sqlite3",
         },
       }),
     }),
