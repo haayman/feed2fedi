@@ -31,7 +31,10 @@ export class ConfigService {
 
   constructor() {
     // Debug: log env vars
-    console.log("[CONFIG] process.env.FEDIVERSE_DOMAIN =", process.env.FEDIVERSE_DOMAIN);
+    console.log(
+      "[CONFIG] process.env.FEDIVERSE_DOMAIN =",
+      process.env.FEDIVERSE_DOMAIN,
+    );
     this.loadConfig();
   }
 

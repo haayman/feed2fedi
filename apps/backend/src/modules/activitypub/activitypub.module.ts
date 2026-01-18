@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
-import { ActivityPubService } from "./activitypub.service";
+import { ActivityPubService } from './activitypub.service.js';
 import {
   WebFingerController,
   ActorController,
   OutboxController,
-} from "./activitypub.controller";
-import { AccountsModule } from "../accounts/accounts.module";
-import { PostsModule } from "../posts/posts.module";
-import { ConfigModule } from "../../config/config.module";
+} from './activitypub.controller.js';
+import { AccountsModule } from '../accounts/accounts.module.js';
+import { PostsModule } from '../posts/posts.module.js';
+import { ConfigModule } from '../../config/config.module.js';
 
 @Module({
   imports: [AccountsModule, PostsModule, ConfigModule],

@@ -1,21 +1,24 @@
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { AppModule } from './app.module.js';
-import { Inject } from '@nestjs/common';
-import { FEDIFY_FEDERATION, integrateFederation } from '@fedify/nestjs';
-import { Federation } from '@fedify/fedify';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
+import { AppModule } from "./app.module.js";
+import { Inject } from "@nestjs/common";
+import { FEDIFY_FEDERATION, integrateFederation } from "@fedify/nestjs";
+import { Federation } from "@fedify/fedify";
+import * as dotenv from "dotenv";
+import * as path from "path";
 
 // Load .env file BEFORE app initialization
-dotenv.config({ path: path.join(process.cwd(), '.env') });
-dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+dotenv.config({ path: path.join(process.cwd(), ".env") });
+dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 
-console.log('[MAIN] Loaded env vars - FEDIVERSE_DOMAIN =', process.env.FEDIVERSE_DOMAIN);
+console.log(
+  "[MAIN] Loaded env vars - FEDIVERSE_DOMAIN =",
+  process.env.FEDIVERSE_DOMAIN,
+);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { 
-    rawBody: true // Enable raw body for Fedify
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true, // Enable raw body for Fedify
   });
 
   // Get Fedify Federation instance
@@ -23,7 +26,7 @@ async function bootstrap() {
 
   // Trust proxy headers - important for reverse proxy setups
   const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.set('trust proxy', 1);
+  expressApp.set("trust proxy", 1);
 
   // Note: Fedify middleware is automatically applied via @fedify/nestjs
   // The routes (/.well-known/webfinger, /@username, /inbox, etc) are handled by Fedify

@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Param } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { ActivityPubService } from "./activitypub.service";
+import { ActivityPubService } from './activitypub.service.js';
 
 /**
  * WebFinger discovery endpoint

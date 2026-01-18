@@ -1,16 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { EntityManager } from "@mikro-orm/core";
-import { AccountsService } from "../accounts/accounts.service";
-import { PostsService } from "../posts/posts.service";
-import { Post } from "../posts/entities/post.entity";
-import { ActivityPubHelper } from "../../common/helpers/activitypub.helper";
+import { AccountsService } from '../accounts/accounts.service.js';
+import { PostsService } from '../posts/posts.service.js';
+import { Post } from '../posts/entities/post.entity.js';
+import { ActivityPubHelper } from '../../common/helpers/activitypub.helper.js';
 import {
   Actor,
   Webfinger,
   Create,
   Collection,
-} from "../../common/types/activitypub.types";
-import { ConfigService } from "../../config/config.service";
+} from '../../common/types/activitypub.types.js';
+import { ConfigService } from '../../config/config.service.js';
 
 @Injectable()
 export class ActivityPubService {

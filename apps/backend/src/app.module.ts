@@ -4,18 +4,18 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { MikroORM } from "@mikro-orm/core";
 import { SqliteDriver } from "@mikro-orm/sqlite";
 import { ScheduleModule } from "@nestjs/schedule";
-import { AccountsModule } from './modules/accounts/accounts.module.js';
-import { PostsModule } from './modules/posts/posts.module.js';
-import { ActivityPubModule } from './modules/activitypub/activitypub.module.js';
-import { FeedsModule } from './modules/feeds/feeds.module.js';
-import { FederationModule } from './modules/federation/federation.module.js';
-import { ConfigModule as AppConfigModule } from './config/config.module.js';
-import { ConfigService as AppConfigService } from './config/config.service.js';
-import { AccountsService } from './modules/accounts/accounts.service.js';
-import { FeedsService } from './modules/feeds/feeds.service.js';
-import { Feed } from './modules/feeds/entities/feed.entity.js';
-import { LoggerService } from './common/logger/logger.service.js';
-import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor.js';
+import { AccountsModule } from "./modules/accounts/accounts.module.js";
+import { PostsModule } from "./modules/posts/posts.module.js";
+import { ActivityPubModule } from "./modules/activitypub/activitypub.module.js";
+import { FeedsModule } from "./modules/feeds/feeds.module.js";
+import { FederationModule } from "./modules/federation/federation.module.js";
+import { ConfigModule as AppConfigModule } from "./config/config.module.js";
+import { ConfigService as AppConfigService } from "./config/config.service.js";
+import { AccountsService } from "./modules/accounts/accounts.service.js";
+import { FeedsService } from "./modules/feeds/feeds.service.js";
+import { Feed } from "./modules/feeds/entities/feed.entity.js";
+import { LoggerService } from "./common/logger/logger.service.js";
+import { HttpLoggingInterceptor } from "./common/interceptors/http-logging.interceptor.js";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { FEDIFY_FEDERATION, integrateFederation } from "@fedify/nestjs";
 import { Federation } from "@fedify/fedify";
@@ -110,10 +110,9 @@ export class AppModule implements OnModuleInit {
       );
 
       if (account) {
-        const existingFeed = await this.orm.em.findOne(
-          Feed,
-          { account: account.id },
-        );
+        const existingFeed = await this.orm.em.findOne(Feed, {
+          account: account.id,
+        });
 
         if (!existingFeed && accountConfig.feedUrl) {
           try {
