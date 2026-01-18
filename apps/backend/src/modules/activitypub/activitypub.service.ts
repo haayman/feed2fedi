@@ -32,13 +32,36 @@ export class ActivityPubService {
 
     const domain = this.configService.getDomain();
 
+    // Generate favicon URL from the RSS feed URL (not from feed.haayman.nl)
+    const iconUrl = account.feedUrl
+      ? this.getIconUrl(account.feedUrl)
+      : undefined;
+
     return ActivityPubHelper.createActor(
       account.username,
       domain,
       account.displayName,
       account.summary,
       account.publicKey,
+      iconUrl,
     );
+  }
+
+  /**
+   * Generate favicon URL from a feed URL
+   * Extracts the domain from the feed URL and uses it for favicon lookup
+   */
+  private getIconUrl(feedUrl: string): string {
+    try {
+      // Parse the feed URL to extract the domain
+      const url = new URL(feedUrl);
+      const domain = url.hostname;
+      // Use Google's favicon service for reliable favicon fetching
+      return `https://www.google.com/s2/favicons?sz=256&domain=${domain}`;
+    } catch (error) {
+      // If URL parsing fails, return undefined (no icon)
+      return undefined as any;
+    }
   }
 
   /**
