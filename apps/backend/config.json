@@ -1,5 +1,4 @@
 {
-  "domain": "localhost:3002",
   "admin": {
     "username": "admin",
     "password": "changeme123"
@@ -32,6 +31,45 @@
       "displayName": "Rivierverhalen",
       "summary": "Verhalen over de IJssel en andere grote rivieren",
       "feedUrl": "https://www.rivierverhalen.nl/feed/"
+    },
+    {
+      "name": "TheOnion",
+      "displayName": "The Onion",
+      "summary": "America's Finest News Source",
+      "feedUrl": "https://theonion.com/feed/"
+    },
+    {
+      "name": "netkwesties",
+      "displayName": "Net kwesties",
+      "feedUrl": "https://www.netkwesties.nl/rss/feed.xml"
+    },
+    {
+      "name": "OfficialAndroidBlog",
+      "displayName": "Android",
+      "feedUrl": "http://feeds.feedburner.com/OfficialAndroidBlog"
+    },
+    {
+      "name": "euronews-green",
+      "displayName": "Euronews Green",
+      "summary": "Latest green news from euronews.com",
+      "feedUrl": "https://www.euronews.com/rss?level=vertical&name=green"
+    },
+    {
+      "name": "noodweerbenelux",
+      "displayName": "Noodweer Benelux",
+      "summary": "Online weer met weerforum &live onweerradar",
+      "feedUrl": "https://www.noodweer.be/category/weersverwachting/feed/"
+    },
+    {
+      "name": "bright-wetenschappelijk-onderzoek",
+      "displayName": "bright-wetenschappelijk-onderzoek",
+      "summary": "Bright is vol van vernieuwing! Met gadgetreviews, tech-nieuws, podcasts, tips en video's",
+      "feedUrl": "https://www.bright.nl/rss?tag=wetenschappelijk-onderzoek"
+    },
+    {
+      "name": "bright-energie",
+      "displayName": "bright-energie",
+      "feedUrl": "https://www.bright.nl/rss?tag=energie"
     }
   ]
 }

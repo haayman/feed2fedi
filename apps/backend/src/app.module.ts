@@ -1,4 +1,4 @@
-import { Module, OnModuleInit, Global, Inject } from "@nestjs/common";
+import { Module, OnModuleInit, Global, Inject, Logger } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { MikroORM } from "@mikro-orm/core";
@@ -62,13 +62,25 @@ import * as crypto from "crypto";
   ],
 })
 export class AppModule implements OnModuleInit {
+  private logger = new Logger(AppModule.name);
+
   constructor(
     private orm: MikroORM,
     private appConfig: AppConfigService,
     private accountsService: AccountsService,
     private feedsService: FeedsService,
     @Inject(FEDIFY_FEDERATION) private federation: Federation<unknown>,
-  ) {}
+  ) {
+    // Listen for config changes and handle new accounts
+    this.appConfig
+      .getEventEmitter()
+      .on("config.accounts-added", async (newAccounts: any[]) => {
+        this.logger.log(
+          `🆕 Handling ${newAccounts.length} new account(s) from config update`,
+        );
+        await this.handleNewAccounts(newAccounts);
+      });
+  }
 
   async onModuleInit() {
     // Ensure database schema exists
@@ -146,5 +158,59 @@ export class AppModule implements OnModuleInit {
       privateKeyEncoding: { type: "pkcs8", format: "pem" },
     });
     return { publicKey, privateKey };
+  }
+
+  private async handleNewAccounts(newAccounts: any[]): Promise<void> {
+    const domain = this.appConfig.getDomain();
+
+    for (const accountConfig of newAccounts) {
+      try {
+        // Create the account
+        const { publicKey, privateKey } = this.generateRSAKeyPair();
+        const actorUrl = `http://${domain}/@${accountConfig.name}`;
+
+        const account = await this.accountsService.create({
+          username: accountConfig.name,
+          displayName: accountConfig.displayName || accountConfig.name,
+          summary: accountConfig.summary,
+          feedUrl: accountConfig.feedUrl,
+          publicKey,
+          privateKey,
+          actorUrl,
+        });
+
+        this.logger.log(`✅ Created account: @${accountConfig.name}`);
+
+        // Create feed for this account
+        if (accountConfig.feedUrl) {
+          try {
+            await this.feedsService.create({
+              accountId: account.id,
+              url: accountConfig.feedUrl,
+              title: accountConfig.displayName || accountConfig.name,
+              description: accountConfig.summary,
+              autoPublish: true,
+            });
+            this.logger.log(
+              `✅ Created feed for @${accountConfig.name}: ${accountConfig.feedUrl}`,
+            );
+          } catch (error) {
+            this.logger.error(
+              `❌ Failed to create feed for @${accountConfig.name}:`,
+              error,
+            );
+          }
+        }
+      } catch (error) {
+        this.logger.error(
+          `❌ Failed to create account @${accountConfig.name}:`,
+          error,
+        );
+      }
+    }
+
+    this.logger.log(
+      `🚀 New accounts initialized. Feed crawler will process them in the next crawl cycle.`,
+    );
   }
 }

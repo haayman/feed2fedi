@@ -5,9 +5,23 @@ import {
   Collection,
   CollectionPage,
   Webfinger,
-} from '../types/activitypub.types.js';
+} from "../types/activitypub.types.js";
 
 export class ActivityPubHelper {
+  /**
+   * Build the actor URL from username and domain
+   * Handles domains with or without protocol
+   */
+  private static getActorUrl(username: string, domain: string): string {
+    // If domain already has protocol, use it as-is
+    if (domain.startsWith("http://") || domain.startsWith("https://")) {
+      return `${domain}/@${username}`;
+    }
+    // Otherwise determine protocol based on localhost
+    const protocol = domain.includes("localhost") ? "http" : "https";
+    return `${protocol}://${domain}/@${username}`;
+  }
+
   /**
    * Generate Actor profile for a Fediverse account
    */
@@ -19,7 +33,7 @@ export class ActivityPubHelper {
     publicKeyPem: string,
     icon?: string,
   ): Actor {
-    const id = `https://${domain}/@${username}`;
+    const id = this.getActorUrl(username, domain);
     const publicKeyId = `${id}#main-key`;
 
     return {
@@ -65,13 +79,14 @@ export class ActivityPubHelper {
     url: string,
     publishedAt: Date,
   ): Note {
-    const noteId = `https://${domain}/@${accountName}/${Date.now()}`;
+    const actorUrl = this.getActorUrl(accountName, domain);
+    const noteId = `${actorUrl}/${Date.now()}`;
 
     return {
       "@context": "https://www.w3.org/ns/activitystreams",
       type: "Note",
       id: noteId,
-      attributedTo: `https://${domain}/@${accountName}`,
+      attributedTo: actorUrl,
       published: publishedAt.toISOString(),
       url: url,
       content: `<p>${this.escapeHtml(content)}</p>`,
@@ -87,7 +102,7 @@ export class ActivityPubHelper {
     domain: string,
     note: Note,
   ): Create {
-    const actorId = `https://${domain}/@${accountName}`;
+    const actorId = this.getActorUrl(accountName, domain);
 
     return {
       "@context": "https://www.w3.org/ns/activitystreams",
@@ -108,10 +123,11 @@ export class ActivityPubHelper {
     items: Create[],
     totalItems: number,
   ): Collection {
+    const actorUrl = this.getActorUrl(accountName, domain);
     return {
       "@context": "https://www.w3.org/ns/activitystreams",
       type: "OrderedCollection",
-      id: `https://${domain}/@${accountName}/outbox`,
+      id: `${actorUrl}/outbox`,
       totalItems,
       items,
     };
@@ -121,8 +137,8 @@ export class ActivityPubHelper {
    * Create a Webfinger response for account discovery
    */
   static createWebfinger(username: string, domain: string): Webfinger {
-    const subject = `acct:${username}@${domain}`;
-    const actorUrl = `https://${domain}/@${username}`;
+    const subject = `acct:${username}@${domain.split("://").pop()?.split(":")[0] || domain}`;
+    const actorUrl = this.getActorUrl(username, domain);
 
     return {
       subject,

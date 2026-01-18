@@ -5,7 +5,7 @@ import {
   Collection,
   OneToMany,
 } from "@mikro-orm/core";
-import { Post } from '../../posts/entities/post.entity.js';
+import { Post } from "../../posts/entities/post.entity.js";
 
 @Entity({ tableName: "accounts" })
 export class Account {
@@ -24,10 +24,10 @@ export class Account {
   @Property({ type: "string" })
   feedUrl: string;
 
-  @Property({ type: "text" })
+  @Property({ type: "text", hidden: true })
   privateKey: string;
 
-  @Property({ type: "text" })
+  @Property({ type: "text", hidden: true })
   publicKey: string;
 
   @Property({ type: "string" })

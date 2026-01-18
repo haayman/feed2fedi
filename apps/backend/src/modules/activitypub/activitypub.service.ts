@@ -1,16 +1,16 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { EntityManager } from "@mikro-orm/core";
-import { AccountsService } from '../accounts/accounts.service.js';
-import { PostsService } from '../posts/posts.service.js';
-import { Post } from '../posts/entities/post.entity.js';
-import { ActivityPubHelper } from '../../common/helpers/activitypub.helper.js';
+import { AccountsService } from "../accounts/accounts.service.js";
+import { PostsService } from "../posts/posts.service.js";
+import { Post } from "../posts/entities/post.entity.js";
+import { ActivityPubHelper } from "../../common/helpers/activitypub.helper.js";
 import {
   Actor,
   Webfinger,
   Create,
   Collection,
-} from '../../common/types/activitypub.types.js';
-import { ConfigService } from '../../config/config.service.js';
+} from "../../common/types/activitypub.types.js";
+import { ConfigService } from "../../config/config.service.js";
 
 @Injectable()
 export class ActivityPubService {
@@ -27,7 +27,7 @@ export class ActivityPubService {
   async getActorProfile(username: string): Promise<Actor> {
     const account = await this.accountsService.findByUsername(username);
     if (!account) {
-      throw new Error("Account not found");
+      throw new NotFoundException(`Account @${username} not found`);
     }
 
     const domain = this.configService.getDomain();
@@ -47,7 +47,7 @@ export class ActivityPubService {
   async getOutbox(username: string): Promise<Collection> {
     const account = await this.accountsService.findByUsername(username);
     if (!account) {
-      throw new Error("Account not found");
+      throw new NotFoundException(`Account @${username} not found`);
     }
 
     const domain = this.configService.getDomain();
@@ -86,7 +86,7 @@ export class ActivityPubService {
   async getWebFinger(username: string): Promise<Webfinger> {
     const account = await this.accountsService.findByUsername(username);
     if (!account) {
-      throw new Error("Account not found");
+      throw new NotFoundException(`Account @${username} not found`);
     }
 
     const domain = this.configService.getDomain();
